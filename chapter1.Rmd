@@ -1,13 +1,16 @@
 
 # About the project
 
-*Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
+I'm very excited to attend a university course after many years. I have finished my Ph.D about 4 years ago. So I'm not doing this course because I want to learn and update my skills.
 
+I'm working as a medical physicist at local university hospital. I carry out also some research projects. In the future, I'm hoping to do more teaching in HU.
+
+This text was created on 
 ```{r}
 # This is a so-called "R chunk" where you can write R code.
 
 date()
 
 ```
-The text continues here.
 
+and let see what happens next! You can follow my github here: https://github.com/Puolimatkassa/IODS-project.git
