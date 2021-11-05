@@ -1,16 +1,20 @@
 
 # About the project
 
-I'm very excited to attend a university course after many years. I have finished my Ph.D about 4 years ago. So I'm not doing this course because I want to learn and update my skills.
+I'm very excited to attend a university course after many years. I have finished my Ph.D about 4 years ago. So I'm doing this course because I want to learn and update my skills.
 
 I'm working as a medical physicist at local university hospital. I carry out also some research projects. In the future, I'm hoping to do more teaching in HU.
 
-This text was created on 
-```{r}
-# This is a so-called "R chunk" where you can write R code.
+This text was created on date: "`r format(Sys.time(), '%d %B, %Y')`"
+
+or using R chunk
+```{r echo=FALSE}
+# This is testa so-called "R chunk" where you can write R code.
 
 date()
 
 ```
 
-and let see what happens next! You can follow my github here: https://github.com/Puolimatkassa/IODS-project.git
+and let see what happens next!
+
+You can follow my project at github: [link to the project](https://github.com/Puolimatkassa/IODS-project.git)
