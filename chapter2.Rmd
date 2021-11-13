@@ -1,13 +1,32 @@
-# Insert chapter 2 title here
+# 2^nd^ exercise: Data summary and regression analysis basics
 
-*Describe the work you have done this week and summarize your learning.*
+The exercise consist 5 parts, which are separated in own sections (_below_). Data for the exercise was read from http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt and it was processed (data wrangling) using a R script ([create_learning2014.R](https://github.com/Puolimatkassa/IODS-project/tree/master/scripts)). Data is stored into /data/learning2014.csv file. I won't go into details about the data wrangling, so look at the file if interested.
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+Scripts can be found from my [/scripts](https://github.com/Puolimatkassa/IODS-project/tree/master/scripts) folder in IODS-project's github repository.
 
-```{r}
-date()
+### 1^st^ part
+First things first, so let's read the data
+```{r readdata, echo=TRUE}
+learning_data <- read.table("data/learning2014.csv",sep=",",header=T)
 ```
+Data in this exercise is sample of bigger student questionnaire. It has 7 variables and 166 observations and the structure is following:
+```{r datastr, echo=TRUE}
+str(learning_data)
+```
+Questionnaire is about different kind of studying orientations. Orientation approaches were deep, surface (surf) and strategic (stra) approached orientations. In addition, gender, age, points and attitude were recorded from the students.
 
-Here we go again...
+### 2^nd^ part
+```{r include=FALSE}
+library(GGally)
+library(ggplot2)
+library(gtsummary)
+```
+In table (_below_), is summary of data. One third of students were male. The median age was 22, but having a some old students too. 
+```{r echo=FALSE}
+tbl_summary(learning_data)
+```
+Summary of the data is shown in figure (_below_). The figure represents distributions for all variables and correlations between them. Some of the distributions have quite significant tails (for example, age, deep, and attitude). of the distributions have  bet and At first glance, it looks like that there is no difference between gender (red: female, green:male). However, it looks like that males reported higher attitude than female, but that is probably quite normal :D (_swagger males_). Quick analysis reveals that surface and deep approaches correlates, and student's attitude correlates with the total points after orientation year. 
+```{r summaryfig, fig.cap="Summary of data", echo=FALSE}
+p <- ggpairs(learning_data, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
+p
+```
