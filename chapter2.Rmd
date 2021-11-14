@@ -25,8 +25,54 @@ In table (_below_), is summary of data. One third of students were male. The med
 ```{r echo=FALSE}
 tbl_summary(learning_data)
 ```
-Summary of the data is shown in figure (_below_). The figure represents distributions for all variables and correlations between them. Some of the distributions have quite significant tails (for example, age, deep, and attitude). of the distributions have  bet and At first glance, it looks like that there is no difference between gender (red: female, green:male). However, it looks like that males reported higher attitude than female, but that is probably quite normal :D (_swagger males_). Quick analysis reveals that surface and deep approaches correlates, and student's attitude correlates with the total points after orientation year. 
-```{r summaryfig, fig.cap="Summary of data", echo=FALSE}
+Summary of the data is shown in figure (_below_). The figure represents distributions for all variables and correlations between them. Some of the distributions have quite significant tails (for example, age, deep, and attitude). of the distributions have  bet and At first glance, it looks like that there is no difference between gender (red: female, green:male). However, it looks like that males reported higher attitude than female, but that is probably quite normal :D (_swagger males_). Quick analysis reveals that surface and deep approaches negatively correlates, and student's attitude correlates with the total points after orientation year. 
+```{r summaryfig, fig.cap="Summary of learning_data", fig.align='center', echo=FALSE}
 p <- ggpairs(learning_data, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
 p
 ```
+### 3^rd^ and 4^th^ part
+The rest of the analysis is done for whole dataset (female and male compined).
+```{r summarywholedata, fig.cap="Summary of learning_data",fig.width=5,fig.asp=1, fig.align='center', echo=FALSE}
+p2 <- ggpairs(learning_data, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20)))
+p2
+```
+Let assume that the total points gained can be 'explained' using three variables: attitude, age and strategic approach. Let's assume that total points is linear combinations of those variables and errors are normally distributed, not correlated and have constant variance, $\sigma^2$. First, let's plot each variable separately against the points.
+```{r, echo=FALSE}
+require(gridExtra)
+plot1 <- qplot(Attitude, Points, data = learning_data) + geom_smooth(method = "lm")
+plot2 <- qplot(Age, Points, data = learning_data) + geom_smooth(method = "lm")
+plot3 <- qplot(stra, Points, data = learning_data) + geom_smooth(method = "lm")
+grid.arrange(plot1, plot2, plot3, ncol=3)
+
+```
+
+Next, let's do a linear regression analysis to the data and see what it tells us.
+```{r}
+
+my_model1 <- lm(Points ~ Attitude + Age + stra, data = learning_data)
+summary(my_model1)
+```
+It seems that student's attitude is the best variable to forecasts student's total points after one year. Interestingly, age seems to correlate negatively with the total points. Let's remove age from our model and run the linear regression analysis again.
+```{r}
+my_model2 <- lm(Points ~ Attitude + stra, data = learning_data)
+summary(my_model2)
+```
+Nothing special happens?! I'm getting bit tired and please let me know what I should have learned about this :D
+
+### 5^th^ part
+Diagnostic plots are following for my first model with attitude, age and strategic approach variables.
+
+```{r ehco=FALSE}
+par(mfrow=c(2,2))
+plot(my_model2, which = c(1,2,5))
+```
+
+_interpretation_:
+
+* From the Q-Q plot supports assumption that the errors of the model are normally distributed (or it was reasonable).
+
+* Residual plot does not show any clear patterns, so I probably can assume that the errors have constant variance (more or less random scatter plot).
+
+* It seems that no observations in our dataset that has high leverage on our fit.
+
+

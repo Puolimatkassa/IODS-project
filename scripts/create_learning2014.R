@@ -89,6 +89,9 @@ write.csv(analysis_dataset,file="data/learning2014.csv",row.names = FALSE)
 test1 <- read.csv("data/learning2014.csv")
 str(test1)
 
+# Let see if data frames are equal after reading and writing
+all_equal(test1,learning_data)
+
 #Without row.names = FALSE we will get followin data after reading:
 # I got new column X
 #'data.frame':	166 obs. of  8 variables:
