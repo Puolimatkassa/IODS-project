@@ -92,7 +92,7 @@ str(test1)
 # Let see if data frames are equal after reading and writing
 all_equal(test1,learning_data)
 
-#Without row.names = FALSE we will get followin data after reading:
+#Without row.names = FALSE we will get following data after reading:
 # I got new column X
 #'data.frame':	166 obs. of  8 variables:
 #$ X       : int  1 2 3 4 5 6 7 8 9 10 ...

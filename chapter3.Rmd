@@ -1,0 +1,63 @@
+---
+title: "chapter3.Rmd"
+author: "Eero Hippeläinen"
+date: "21/11/2021"
+output: html_document
+---
+# 3^rd^ exercise: Data summary and predictin alcohol consumption 
+
+### 1^st^ and 2^nd^ part of the exercise
+Data for the exercise was read from https://archive.ics.uci.edu/ml/datasets/Student+Performance and it was processed (data wrangling) using a R script ([create_alc.R](https://github.com/Puolimatkassa/IODS-project/tree/master/scripts)). Data is stored into /data/student_acl.csv file. I won't go into details about the data wrangling, so look at the file if you are interested.
+
+Data is very well described in the student.txt file which came with the data. Please refer to link to original data repository (_above_). Briefly, data is about secondary school's  student' alcohol consumption. Data used in this exercise was combined from two different, but identical surveys which was given to math course and Portuguese course students. We are interested about alcohol users, who use regularly it. New variable, *high_use* was created and was *true* for those students who used alcohol more than two times per week, others was set *false*.
+
+Scripts can be (again) found in my [/scripts](https://github.com/Puolimatkassa/IODS-project/tree/master/scripts) folder in IODS-project's github repository.
+
+First things first, so let's read the data
+```{r readdata3, echo=TRUE}
+pormath2 <- read.table("data/student_alc.csv",sep=",",header=T)
+```
+
+### 3^rd^ part
+```{r include=FALSE}
+library(GGally)
+library(ggplot2)
+library(gtsummary)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+```
+I believe that the three most important variables that promote to alcohol consumption are (variable names in parenthesis):
+
+* if Sex = M (sex)
+* parent's cohabitation status = apart (Pstatus)
+* and if quality of family relationships is low (1-2, where 5 is excellent) (famrel)
+
+On the other hand, I believe that mother's high education (Medu) will inhibit alcohol consumption. Let's gather data what is needed:
+```{r include=FALSE}
+int_cols <- c("sex","Pstatus","famrel","Medu","alc_use","high_use")
+int_data <- pormath2 %>% select(one_of(int_cols))
+```
+Then have a look at the data and a quick view of correlations:
+
+
+
+
+```{r summaryfig3, fig.cap="Summary of alcohol use among students", fig.align='center', echo=FALSE}
+gather(int_data) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+
+p <- ggpairs(int_data, mapping = aes(col = sex, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
+p
+```
+Let's have a look at family relationships vs. high use box plot.
+```{r meduvshuse, fig.cap="Family relationships vs. high alcohol use", fig.align='center', echo=FALSE}
+g1 <- ggplot(int_data, aes(x = high_use ,y = famrel,  col = sex))
+
+# define the plot as a boxplot and draw it
+g1 + geom_boxplot() + ylab("Family relationships")
+
+```
+It looks like that lower family relationship grade (1-5) have some prediction value for high alcohol use.. 
+
+### Not enough time..
+It seems that I'm not able to finish these exercise. Family and work duties... :(
