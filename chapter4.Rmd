@@ -1,0 +1,176 @@
+# 4^th^ exercise
+
+Here I'm and it's (again) 10pm on Sunday evening/night. Let's get started! I have numbered the exercise sections to help you to follow my diary. Because you are reading this, I have maneged to done the first part of the exercise :)
+
+### 2^nd^ part
+
+This time I'm analyzing data called _Boston_ form the _Mass_ library. It about housing values in suburbs of Boston. It includes lot of different kind of economical and social data about land usage, criminal rates, employment, and accessibility. More about the data set can be found ([here](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html)) 
+
+### 3^rd^ part
+First, let's load the library and the data set. Then have a look at the data structure and summary of it:
+```{r include=FALSE}
+library(MASS)
+library(tidyr)
+library(corrplot)
+library(GGally)
+library(ggplot2)
+library(gtsummary)
+data("Boston")
+
+#Structure and summary of the Boston data set
+str(Boston)
+summary(Boston)
+```
+
+I'll use ggpairs to show overview of data:
+```{r bostonsummary, fig.cap="Summary of Boston suburbs",fig.width=5,fig.asp=1, fig.align='center', echo=FALSE}
+p2 <- ggpairs(Boston, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20)))
+p2
+
+```
+It's seems there are lot of correlations between variables, which implies that studied variables will separate suburbs from each other. For example: Median value of owner-occupied homes has inverse corralation with crimes. Distributions are (surprise) quite clustered. Correlation plot looks following:
+```{r bcorrelationplot, fig.cap="Correlation plot of Boston dataset", fig.align='center', echo=FALSE}
+
+cor_matrix<-cor(Boston) %>% round(digits = 2)
+cor_matrix
+corrplot(cor_matrix, method = 'ellipse', order = 'AOE', type = 'upper')
+
+```
+It seems that there are some very intuitive correlations:
+
+*like accessibility to radial highways (_rad_) correlates positively with ull-value property-tax rate (_tax_)
+*Lower status (lower education of adults, _lstat_) has a negative correlations with number of rooms in dwelling/flat (_rm_) 
+
+### 4^th^ part
+Scaling can be done easily with _scale_ function. It will calculate difference of variable value and the mean, and then divided by standard deviation of the variable: $scaled(x)=\frac{x-\bar{x}}{sd(x)}$
+
+What _scale_ function does: Variable's values are scattered around the mean, _scale_ function shifts data around zero and the distance from the mean/zero is scaled with standard deviation. This is seems very logical way to scale. After the scale, mean of the all data will be 0 and 1 standard deviation will be 1 :D.
+
+I'm bit worried about this, because distributions did not look normally distributed. _Scale_ function will change the distributions and I'm curious if someone could tell me more about this..
+
+In this case, all variables are numerical so no additional parameters needed for _scale_ function call:
+
+```{r include=TRUE}
+boston_scaled <- scale(Boston)
+summary(boston_scaled)
+boston_scaled <- as.data.frame(boston_scaled)
+
+```
+
+Then I'll follow strickly the datacamp example, because I don't have much imagination to improvise about this part. Following steps are mechanical and no words needed. First _crime_ variable is "split" by it's quantiles (= it's divided into equal-size, adjacent, subgroups). Then quantiles are named and old variable _crim_ is replaced by categorized variable _crime_:
+
+```{r echo=TRUE}
+summary(boston_scaled$crim)
+bins <- quantile(boston_scaled$crim)
+bins
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, labels = c("low", "med_low", "med_high", "high"))
+table(crime)
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+boston_scaled <- data.frame(boston_scaled, crime)
+
+```
+Next, 80 percent of data will be training data and the rest will be test data.
+
+```{r echo =TRUE}
+n <- nrow(boston_scaled)
+ind <- sample(n,  size = n * 0.8)
+train <- boston_scaled[ind,]
+test <- boston_scaled[-ind,]
+correct_classes <- test$crime
+```
+
+### 5^th^ part
+
+```{r echo =TRUE}
+lda.fit <- lda(crime ~ ., data = train)
+
+# print the lda.fit object
+lda.fit
+
+```
+```{r}
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "orange", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+# target classes as numeric
+classes <- as.numeric(train$crime)
+
+# plot the lda results
+plot(lda.fit, dimen = 2, col = classes, pch = classes)
+lda.arrows(lda.fit, myscale = 1)
+
+```
+
+### 6^th^ part
+
+```{r}
+test <- dplyr::select(test, -crime)
+# predict classes with test data
+lda.pred <- predict(lda.fit, newdata = test)
+
+# cross tabulate the results
+
+
+table(correct = correct_classes, predicted = lda.pred$class)
+
+```
+
+### 7^th part
+```{r}
+data("Boston")
+scaled2<-scale(Boston)
+
+dist_eu <- dist(scaled2)
+
+# look at the summary of the distances
+summary(dist_eu)
+
+# manhattan distance matrix
+dist_man <- dist(scaled2, method = 'manhattan')
+
+summary(dist_man)
+
+# k-means clustering
+km <-kmeans(scaled2, centers = 3)
+
+scaled2 <- as.data.frame(scaled2)
+
+# plot the Boston data set with clusters
+pairs(scaled2, col = km$cluster)
+
+
+
+```
+It look bit wierd. Let's see can we use more clusters to get better fit.
+```{r}
+set.seed(123)
+
+k_max <- 15
+
+# calculate the total within sum of squares
+twcss <- sapply(1:k_max, function(k){kmeans(scaled2, k)$tot.withinss})
+
+# visualize the results
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+
+
+
+```
+I would choose 5 clusters, because sum of distances from centroids is reducing fast until that.
+
+```{r}
+# k-means clustering
+km <-kmeans(scaled2, centers = 5)
+
+# plot the Boston dataset with clusters
+pairs(scaled2, col = km$cluster)
+
+```
+
+Well, it's ´time()' and time to stop!
