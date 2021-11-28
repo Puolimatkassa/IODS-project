@@ -23,7 +23,7 @@ summary(Boston)
 ```
 
 I'll use ggpairs to show overview of data:
-```{r bostonsummary, fig.cap="Summary of Boston suburbs", fig.align='center', echo=FALSE}
+```{r bostonsummary, fig.cap="Summary of Boston suburbs", echo=FALSE}
 p2 <- ggpairs(Boston, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20)))
 p2
 
@@ -38,8 +38,9 @@ corrplot(cor_matrix, method = 'ellipse', order = 'AOE', type = 'upper')
 ```
 It seems that there are some very intuitive correlations:
 
-*like accessibility to radial highways (_rad_) correlates positively with ull-value property-tax rate (_tax_)
-*Lower status (lower education of adults, _lstat_) has a negative correlations with number of rooms in dwelling/flat (_rm_) 
+* like accessibility to radial highways (_rad_) correlates positively with ull-value property-tax rate (_tax_)
+
+* Lower status (lower education of adults, _lstat_) has a negative correlations with number of rooms in dwelling/flat (_rm_) 
 
 ### 4^th^ part
 Scaling can be done easily with _scale_ function. It will calculate difference of variable value and the mean, and then divided by standard deviation of the variable: $scaled(x)=\frac{x-\bar{x}}{sd(x)}$
