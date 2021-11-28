@@ -23,7 +23,7 @@ summary(Boston)
 ```
 
 I'll use ggpairs to show overview of data:
-```{r bostonsummary, fig.cap="Summary of Boston suburbs",fig.width=5,fig.asp=1, fig.align='center', echo=FALSE}
+```{r bostonsummary, fig.cap="Summary of Boston suburbs", fig.align='center', echo=FALSE}
 p2 <- ggpairs(Boston, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20)))
 p2
 
@@ -162,7 +162,7 @@ qplot(x = 1:k_max, y = twcss, geom = 'line')
 
 
 ```
-I would choose 5 clusters, because sum of distances from centroids is reducing fast until that.
+I would choose 5 clusters, because sum of distances from centroids is reducing fast until that. Of course it's not true for all variables, but it's late and I need smeel
 
 ```{r}
 # k-means clustering
@@ -173,4 +173,4 @@ pairs(scaled2, col = km$cluster)
 
 ```
 
-Well, it's ´time()' and time to stop!
+Well, it's 01:00 am and time to go sleep!
