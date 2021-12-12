@@ -1,4 +1,4 @@
-# 6^th^ exercise: Three Rat weigth treatment comparison and Psyciatric longitudial data
+# 6^th^ exercise: Rat weigth treatment comparison and Psyciatric longitudial data
 
 In this exercise I'll run two analysis from Kimmo Vehkalati's book. I'll start with the RATSL data, and run Chapter 8 analysis for it (data is swapped). RATSL was created with the R script (data wrangling) ([meet_and_repeat.R](https://github.com/Puolimatkassa/IODS-project/tree/master/scripts)). And yes, I like to put scripts to separate folder. 
 
