@@ -1,0 +1,130 @@
+# 6^th^ exercise: Three Rat weigth treatment comparison and Psyciatric longitudial data
+
+In this exercise I'll run two analysis from Kimmo Vehkalati's book. I'll start with the RATSL data, and run Chapter 8 analysis for it (data is swapped). RATSL was created with the R script (data wrangling) ([meet_and_repeat.R](https://github.com/Puolimatkassa/IODS-project/tree/master/scripts)). And yes, I like to put scripts to separate folder. 
+
+I won't go into details about the data wrangling, so look at the file if interested.
+
+### Rat's getting some weight treatment :)
+
+I'll load some libraries first, and will put more here, what ever I'll need.
+```{r echo=TRUE}
+
+library(ggplot2)
+library(GGally)
+library(gtsummary)
+library(dplyr)
+library(tidyr)
+```
+
+First load the RATSL data:
+
+```{r}
+
+RATS <- read.table("data/RATS.csv",sep=",",header=T)
+RATS$ID <- factor(RATS$ID)
+RATS$Group <- factor(RATS$Group)
+
+RATSL <- RATS %>%
+  gather(key = WD, value = Weight, -ID, -Group) %>%
+  mutate(Time = as.integer(substr(WD,3,4))) 
+
+```
+
+There are 8 rats in group 1 and 4 rats in groups 2,3.
+```{r echo=TRUE}
+table(RATS$Group)
+```
+
+```{r}
+
+```
+
+
+Let's plot weights as function of time in their groups. 
+```{r echo=FALSE}
+ggplot(RATSL, aes(x = Time , y = Weight, linetype = ID)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(RATSL$Weight), max(RATSL$Weight)))
+
+
+```
+
+As we can see, that groups start at different average weights. This means that the change in weight over time is "harder" to compare between groups. To get data more comparable, I'll scale weights:
+
+```{r echo=TRUE }
+RATSL <- RATSL %>%
+  group_by(Group,Time) %>%
+  mutate(stdweight = ((Weight-mean(Weight))/sd(Weight))) %>%
+  ungroup()
+  
+```
+
+Let's plot the scaled (standardized) data:
+
+```{r echo=FALSE}
+ggplot(RATSL, aes(x = Time , y = stdweight, linetype = ID)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(RATSL$stdweight), max(RATSL$stdweight)))
+
+
+```
+
+Well, it did not help much. Then let's look at the group averages over experiment:
+```{r echo=TRUE}
+n <- RATSL$Time %>% unique() %>% length()
+
+RATSS <- RATSL %>%
+  group_by(Group, Time) %>%
+  summarise( mean = mean(Weight), se = sd(Weight)/sqrt(n) ) %>%
+  ungroup()
+
+glimpse(RATSS)
+```
+
+```{r echo=FALSE}
+ggplot(RATSS, aes(x = Time, y = mean, linetype = Group, shape = Group)) +
+  geom_line() +
+  scale_linetype_manual(values = c(1,2,3)) +
+  geom_point(size=3) +
+  scale_shape_manual(values = c(1,2,3)) +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se, linetype="1"), width=0.3) +
+  theme(legend.position = c(0.8,0.8)) +
+  scale_y_continuous(name = "mean(RATS) +/- se(RATS)")
+
+```
+
+Still it's hard to say, which group of rats gained more weight. Next, I'll calculate difference of start weight and the weight at the end:
+```{r echo=TRUE}
+rateofchange <- RATSL %>%
+  group_by(Group,ID) %>%
+  summarise(diff = last(Weight) - first(Weight), increase = diff /first(Weight)) %>%
+  arrange(increase)
+
+```
+
+And then prepare data for boxplot over the three groups.
+
+```{r ehco=TRUE}
+RATSDIFF <- rateofchange %>%
+  summarise( mean=mean(increase) ) %>%
+  ungroup()
+
+```
+
+```{r echo=FALSE}
+ggplot(RATSDIFF, aes(x = Group, y = mean*100)) +
+  geom_boxplot() +
+  stat_summary(fun.y = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean%(Increase), from start to end of the test")
+
+```
+
+From the graph above, we can see that the biggest gain on weight was found on the group 2, gaining about almost 15% weight.
+
+It's already 01:13 and I have a work day tomorrow. Hopefully this was one way to do it! No energy left for the Second part of the exercise..
